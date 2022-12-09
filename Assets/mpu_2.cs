@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.IO.Ports;
 using static System.Math;
 using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
 
 public class mpu_2 : MonoBehaviour
 {
     
 //    SerialPort stream = new SerialPort("COM7", 115200);
-   SerialPort stream = new SerialPort("COM7", 9600);
+   SerialPort stream = new SerialPort("COM8", 9600);
     public string strReceived;
      
     public string[] strData = new string[5];
@@ -22,6 +24,8 @@ public class mpu_2 : MonoBehaviour
     private Dictionary <int, GameObject> map;
     private Color focus_color, default_color;
     public GameObject arteries, lungs, airways, kidneys, liver, skeleton, skin, intestines;
+    public TextMeshProUGUI movement, opacity, scaling;
+    public TextMeshProUGUI[] text_objs = new TextMeshProUGUI[3];
     void Start()
     {
         stream.Open(); //Open the Serial Stream.
@@ -55,29 +59,65 @@ public class mpu_2 : MonoBehaviour
         // GameObject liver = GameObject.FindWithTag("liver");
         // GameObject skeleton = GameObject.FindWithTag("skeleton");
         // GameObject skin = GameObject.FindWithTag("skin");
+        text_objs[0] = movement;
+        text_objs[1] = opacity;
+        text_objs[2] = scaling;
+        HighlightText();
     }
 
+    void HighlightText()
+    {
+        Debug.Log("Entering Color Change");
+        for (int i = 0; i < 3; i++)
+        {
+            if (mode == i + 1)
+            {
+                Color curr = text_objs[i].color;
+                curr.a = 1.0f;
+                text_objs[i].color = curr;
+            } else
+            {
+                Color curr = text_objs[i].color;
+                curr.a = 0.5f;
+                text_objs[i].color = curr;
+            }
+        }
+        Debug.Log("Exiting Color Change");
+    }
     void ModeSwitch()
     {
         if(button==1f){return ;}
         if (((x > -x_thresh && x < x_thresh)  && (y < -180f + yz_thresh || y > 180f - yz_thresh) && (z > -yz_thresh || z < yz_thresh)) || ((x < -180f + x_thresh || x > 180f - x_thresh) && (y > -yz_thresh && y < yz_thresh) && (z < -180f + yz_thresh || z > 180f - yz_thresh))){
             if(prev_mode!=1){count=0;prev_mode = 1;} else{count++;}
-            if(count >= mode_thres){mode = 1;}
+            if(count >= mode_thres){
+                mode = 1;
+                HighlightText();
+            }
             Debug.Log("Mode is 1");
         }
         else if (((x > 90.0f - x_thresh && x < 90.0f + x_thresh) && (y < -180f + yz_thresh || y > 180f - yz_thresh) && (z > -yz_thresh || z < yz_thresh)) || ((x > 90.0f - x_thresh && x < 90.0f + x_thresh) && (y > -yz_thresh && y < yz_thresh) && (z < -180f + yz_thresh || z > 180f - yz_thresh))){
             if(prev_mode!=2){count=0;prev_mode = 2;} else{count++;}
-            if(count >= mode_thres){mode = 2;}
+            if (count >= mode_thres) {
+                mode = 2;
+                HighlightText();
+                
+            }
             Debug.Log("Mode is 2");
         }
         else if (((x < -90.0f + x_thresh && x > -90.0f - x_thresh) && (y < -180f + yz_thresh || y > 180f - yz_thresh) && (z > -yz_thresh || z < yz_thresh)) || ((x < -90.0f + x_thresh && x > -90.0f - x_thresh) && (y > -yz_thresh && y < yz_thresh) && (z < -180f + yz_thresh || z > 180f - yz_thresh))){
             if(prev_mode!=3){count=0;prev_mode = 3;} else{count++;}
-            if(count >= mode_thres){mode = 3;}
+            if (count >= mode_thres) {
+                mode = 3;
+                HighlightText();
+            }
             Debug.Log("Mode is 3");
         }
         else if (((x < -180f + x_thresh || x > 180f - x_thresh) && (y < -180f + yz_thresh || y > 180f - yz_thresh) && (z > -yz_thresh || z < yz_thresh)) || ((x > -x_thresh && x < x_thresh) && (y > -yz_thresh && y < yz_thresh) && (z < -180f + yz_thresh || z > 180f - yz_thresh))){
             if(prev_mode!=4){count=0;prev_mode = 4;} else{count++;}
-            if(count >= mode_thres){mode = 4;}
+            if(count >= mode_thres){
+                mode = 4;
+                HighlightText();
+            }
             Debug.Log("Mode is 4");
         }
         return ;
@@ -187,11 +227,12 @@ public class mpu_2 : MonoBehaviour
                 transform.localScale = new Vector3 (scale[0]*Abs(x)/90, scale[1]*Abs(x)/90, scale[2]*Abs(x)/90);
             }
             // else{transform.localScale = new Vector3(scale[0],scale[1],scale[2]);}
+            
         }  
         catch{
             Debug.Log("Could not convert to float");
         }
-        
-        
+
+
     }
 }
