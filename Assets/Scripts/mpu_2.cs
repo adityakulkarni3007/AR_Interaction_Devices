@@ -21,11 +21,14 @@ public class mpu_2 : MonoBehaviour
     public GameObject pos_cube;
     public int mode, focus, joy_count;
     private Vector3 scale;
-    private Dictionary <int, GameObject> map;
+    //private Dictionary <int, GameObject> body;
     private Color focus_color, default_color;
-    public GameObject arteries, lungs, airways, kidneys, liver, skeleton, skin, intestines;
+    //public GameObject arteries, lungs, airways, kidneys, liver, skeleton, skin, intestines;
     public TextMeshProUGUI movement, opacity, scaling;
     public TextMeshProUGUI[] text_objs = new TextMeshProUGUI[3];
+    private GameObject[] body = new GameObject[8];
+    public TextMeshProUGUI[] body_objs = new TextMeshProUGUI[8];
+    private GameObject body_parts;
     void Start()
     {
         stream.Open(); //Open the Serial Stream.
@@ -40,37 +43,34 @@ public class mpu_2 : MonoBehaviour
         x_thresh        = 20f;
         joy_thresh      = 2f;
         mode_thres      = 3f;
-        map             =  new Dictionary<int, GameObject>();
-        focus_color     = new Color(0.5f, 0.15f, 1.0f);
         default_color   = new Color(0.67f, 0.46f, 0.44f);
-        map.Add(0, skin);
-        map.Add(1, skeleton);
-        map.Add(2, lungs);
-        map.Add(3, liver);
-        map.Add(4, kidneys);
-        map.Add(5, intestines);
-        map.Add(6, arteries);
-        map.Add(7, airways);
-        // TODO: Try to make FindTag work
-        // GameObject arteries = GameObject.FindWithTag("arteries");
-        // GameObject lungs = GameObject.FindWithTag("lungs");
-        // GameObject airways = GameObject.FindWithTag("airways");
-        // GameObject kidneys = GameObject.FindWithTag("kidneys");
-        // GameObject liver = GameObject.FindWithTag("liver");
-        // GameObject skeleton = GameObject.FindWithTag("skeleton");
-        // GameObject skin = GameObject.FindWithTag("skin");
+        focus_color     = new Color(0.19f, 0.32f, 0.6f);
+        
+        //TODO: Try to make FindTag work
+        body[7] = GameObject.FindWithTag("airways");
+        body[6] = GameObject.FindWithTag("arteries");
+        body[5] = GameObject.FindWithTag("intestines");
+        body[4] = GameObject.FindWithTag("kidneys");
+        body[3] = GameObject.FindWithTag("liver");
+        body[2] = GameObject.FindWithTag("lungs");
+        body[1] = GameObject.FindWithTag("skeleton");
+        body[0] = GameObject.FindWithTag("skin");
+
+        body_parts = GameObject.FindWithTag("BodyParts");
+        body_parts.SetActive(false);
         text_objs[0] = movement;
         text_objs[1] = opacity;
         text_objs[2] = scaling;
-        HighlightText();
+
+        HighlightText(3,mode);
+        HighlightText2(8,focus+1);
     }
 
-    void HighlightText()
+    void HighlightText(int n, int curr_mode)
     {
-        Debug.Log("Entering Color Change");
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < n; i++)
         {
-            if (mode == i + 1)
+            if (curr_mode == i + 1)
             {
                 Color curr = text_objs[i].color;
                 curr.a = 1.0f;
@@ -82,8 +82,26 @@ public class mpu_2 : MonoBehaviour
                 text_objs[i].color = curr;
             }
         }
-        Debug.Log("Exiting Color Change");
     }
+    
+    void HighlightText2(int n, int curr_mode)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            if (curr_mode == i + 1)
+            {
+                Color curr = body_objs[i].color;
+                curr.a = 1.0f;
+                body_objs[i].color = curr;
+            } else
+            {
+                Color curr = body_objs[i].color;
+                curr.a = 0.5f;
+                body_objs[i].color = curr;
+            }
+        }
+    }
+    
     void ModeSwitch()
     {
         if(button==1f){return ;}
@@ -91,7 +109,7 @@ public class mpu_2 : MonoBehaviour
             if(prev_mode!=1){count=0;prev_mode = 1;} else{count++;}
             if(count >= mode_thres){
                 mode = 1;
-                HighlightText();
+                HighlightText(3,mode);
             }
             Debug.Log("Mode is 1");
         }
@@ -99,7 +117,7 @@ public class mpu_2 : MonoBehaviour
             if(prev_mode!=2){count=0;prev_mode = 2;} else{count++;}
             if (count >= mode_thres) {
                 mode = 2;
-                HighlightText();
+                HighlightText(3,mode);
                 
             }
             Debug.Log("Mode is 2");
@@ -108,7 +126,7 @@ public class mpu_2 : MonoBehaviour
             if(prev_mode!=3){count=0;prev_mode = 3;} else{count++;}
             if (count >= mode_thres) {
                 mode = 3;
-                HighlightText();
+                HighlightText(3,mode);
             }
             Debug.Log("Mode is 3");
         }
@@ -116,7 +134,7 @@ public class mpu_2 : MonoBehaviour
             if(prev_mode!=4){count=0;prev_mode = 4;} else{count++;}
             if(count >= mode_thres){
                 mode = 4;
-                HighlightText();
+                HighlightText(3,mode);
             }
             Debug.Log("Mode is 4");
         }
@@ -146,7 +164,7 @@ public class mpu_2 : MonoBehaviour
             joy_count++;
             if(joy_count>joy_thresh)
             {
-                map[focus].GetComponent<Renderer>().material.SetColor("_Color", default_color);
+                body[focus].GetComponent<Renderer>().material.SetColor("_Color", default_color);
                 focus++;
                 Debug.Log(focus);
                 if (focus > 7){focus=0;}
@@ -158,7 +176,7 @@ public class mpu_2 : MonoBehaviour
             joy_count++;
             if(joy_count>joy_thresh)
             {
-                map[focus].GetComponent<Renderer>().material.SetColor("_Color", default_color);
+                body[focus].GetComponent<Renderer>().material.SetColor("_Color", default_color);
                 focus--;
                 Debug.Log(focus);
                 if (focus < 0){focus=7;}
@@ -169,14 +187,14 @@ public class mpu_2 : MonoBehaviour
         {
             joy_count=0;
         }
-        map[focus].GetComponent<Renderer>().material.SetColor("_Color", focus_color);
-        map[focus].GetComponent<Renderer>().material.SetFloat("_alpha", Abs(x/90));
+        body[focus].GetComponent<Renderer>().material.SetColor("_Color", focus_color);
+        body[focus].GetComponent<Renderer>().material.SetFloat("_alpha", Abs(x/90));
+        HighlightText2(8,focus+1);
     }
 
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(skin.transform.position.x);
         try{
             strReceived = stream.ReadLine(); //Read the information  
             Debug.Log(strReceived);
@@ -221,8 +239,12 @@ public class mpu_2 : MonoBehaviour
             }    
             if (mode == 2 && button !=0f){
                 focus_region();
+                body_parts.SetActive(true);
             }
-            else{map[focus].GetComponent<Renderer>().material.SetColor("_Color", default_color);}
+            else{
+                body[focus].GetComponent<Renderer>().material.SetColor("_Color", default_color);
+                body_parts.SetActive(false);
+            }
             if (mode == 3 && button != 0f){
                 transform.localScale = new Vector3 (scale[0]*Abs(x)/90, scale[1]*Abs(x)/90, scale[2]*Abs(x)/90);
             }
