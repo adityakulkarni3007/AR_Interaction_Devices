@@ -361,9 +361,13 @@
 -r:"Library/Bee/artifacts/1900b0aE.dag/Unity.VSCode.Editor.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/UnityEditor.UI.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/UnityEngine.UI.ref.dll"
+-analyzer:"Assets/websocket-sharp.dll"
 "Assets/Scripts/Client.cs"
 "Assets/Scripts/mpu6050.cs"
 "Assets/Scripts/mpu_2.cs"
+"Assets/Scripts/PlayerData.cs"
+"Assets/Scripts/ReadData.cs"
+"Assets/Scripts/SocketManager.cs"
 -langversion:9.0
 
 /deterministic
