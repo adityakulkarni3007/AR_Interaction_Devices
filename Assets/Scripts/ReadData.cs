@@ -16,7 +16,7 @@ public class ReadData : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        socket = new WebSocket("ws://10.0.0.169:8080");
+        socket = new WebSocket("ws://localhost:8080");
         // socket = new WebSocket("ws://localhost:8080");
         socket.Connect();
 

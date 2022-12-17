@@ -24,7 +24,7 @@ public class SocketManager : MonoBehaviour
     {
         stream.Open(); //Open the Serial Stream.
         // socket = new WebSocket("ws://localhost:8080");
-        socket = new WebSocket("ws://10.0.0.169:8080");
+        socket = new WebSocket("ws://10.191.108.61:8080");
         socket.Connect();
 
         //WebSocket onMessage function

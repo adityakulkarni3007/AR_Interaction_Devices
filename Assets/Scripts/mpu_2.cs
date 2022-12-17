@@ -143,10 +143,10 @@ public class mpu_2 : MonoBehaviour
 
     void translation()
     {
-            float delta_x = (joyx - 512.0f) * .05f / 1024.0f;
-            float delta_y = (joyy - 512.0f) * .05f / 1024.0f;
+            float delta_x = (joyx - 513.0f) * .05f / 1024.0f;
+            float delta_y = (joyy - 505.0f) * .05f / 1024.0f;
 
-            transform.position = transform.position + new Vector3(delta_y, delta_x, 0);
+            transform.position = transform.position + new Vector3(delta_y, 0, delta_x);
     }
 
     void rotation()
@@ -159,7 +159,7 @@ public class mpu_2 : MonoBehaviour
 
     void focus_region()
     {
-        if (joyx>1000)
+        if (joyx<10)
         {
             joy_count++;
             if(joy_count>joy_thresh)
@@ -171,7 +171,7 @@ public class mpu_2 : MonoBehaviour
                 joy_count=0;
             }
         }
-        else if(joyx < 10)
+        else if(joyx > 1000)
         {
             joy_count++;
             if(joy_count>joy_thresh)
@@ -222,6 +222,7 @@ public class mpu_2 : MonoBehaviour
             joyx    = float.Parse(strData[6]);
             joyy    = float.Parse(strData[7]);
             Quaternion rot = new Quaternion(-qy, -qz, qx, qw);
+            //Quaternion rot = new Quaternion(-qy, qx, -qz, qw);
             Quaternion spin=Quaternion.Euler(0, 180,0);
             pos_cube.transform.rotation = spin*rot;
             Vector3 eul = pos_cube.transform.localEulerAngles;
@@ -246,10 +247,11 @@ public class mpu_2 : MonoBehaviour
                 body_parts.SetActive(false);
             }
             if (mode == 3 && button != 0f){
-                transform.localScale = new Vector3 (scale[0]*Abs(x)/90, scale[1]*Abs(x)/90, scale[2]*Abs(x)/90);
+                
+                transform.localScale = new Vector3(scale[0] * (180-Abs(x)) / 90, scale[1] * (180 - Abs(x)) / 90, scale[2] * (180-Abs(x)) / 90);
+                
             }
             // else{transform.localScale = new Vector3(scale[0],scale[1],scale[2]);}
-            
         }  
         catch{
             Debug.Log("Could not convert to float");
